@@ -3,95 +3,129 @@
   require_once 'app/dashboard-controller.php'; 
   $bot = new Dashboard_Controller();
   // define variables and set to empty values
-  $titleErr = $subTitleErr = $imageErr = $short_descriptionErr = $descriptionErr = "";
-  $title = $subtitle = $image = $short_description = $description = "";
+  $titleErr = $subTitleErr = $slugErr = $imageErr = $short_descriptionErr = $descriptionErr = $categoryErr = $tagsErr = "";
+  $title = $subtitle = $slug = $image = $short_description = $description = $descriptionErr = $category = $tags = "";
 
-  
-	// if ($_SERVER["REQUEST_METHOD"] == "POST") {
+  $conditions = "`title` != '' ORDER BY `id` DESC";
+  $categories = $bot->selectData('categories','',$conditions,'');
+  $nm_row_category = count($categories);
 
-	//      if (empty($_POST["pack_name"])) {
-	//        $packErr = "Name is required";
-	//      } else {
-	//        $pack = $_POST["pack_name"];
-	//      }
+  $conditions = "`title` != '' ORDER BY `id` ASC";
+  $tags = $bot->selectData('tags','',$conditions,'');
+  $nm_row_tag = count($tags);
 
-	//      if (empty($_POST["pack_price"])) {
-	//        $priceErr = "Price is required";
-	//      } else {
-	//        $price = $_POST["pack_price"];
+	if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+	     if (empty($_POST["title"])) {
+	       $titleErr = "Title is required";
+	     } else {
+	       $title = $_POST["title"];
+	     }
+
+	     if (empty($_POST["subtitle"])) {
+	       $subTitleErr = "SubTitle is required";
+	     } else {
+	       $subtitle = $_POST["subtitle"];
 	       
-	//      }
+	     }
 
-	//      if (empty($_POST["param_en"])) {
-	//        $paramErr = "Param is required";
-	//      } else {
-	//        $param = $_POST["param_en"];
+       if (empty($_POST["slug"])) {
+         $slugErr = "Slug is required";
+       } else {
+         $slug = $_POST["slug"];
+         
+       }
+
+	     if (empty($_POST["short_description"])) {
+	       $short_descriptionErr = "Short Description is required";
+	     } else {
+	       $short_description = $_POST["short_description"];
 	       
-	//      }
+	     }
 
-	//      if (empty($_POST["keyword"])) {
-	//        $keywordErr = "Keyword is required";
-	//      } else {
-	//        $keyword = $_POST["keyword"];
+	     if (empty($_POST["description"])) {
+	       $descriptionErr = "Description is required";
+	     } else {
+	       $description = $_POST["description"];
 	       
-	//      }
+	     }
 
-	//      if (empty($_POST["reply_text_en"])) {
-	//        $reply_enErr = "reply text is required";
-	//      } else {
-	//        $reply_en = $_POST["reply_text_en"];
+	     if (empty($_POST["category_id"])) {
+	       $categoryErr = "Category is required";
+	     } else {
+	       $category_id = $_POST["category_id"];
 	       
-	//      }
+	     }
 
-	//      if (empty($_POST["reply_text_ban"])) {
-	//        $reply_bnErr = "reply text is required";
-	//      } else {
-	//        $reply_bn = $_POST["reply_text_ban"];
+	     if (empty($_POST["tags"])) {
+	       $tagsErr = "Tag is required";
+	     } else {
+	       $tags = $_POST["tags"];
 	       
-	//      }
+	     }
 
-	//      $category = $_POST["category"];
+        $image = $_FILES['image'];
+        $imageName = $image['name'];
+        $imageTmpName = $image['tmp_name'];
+        $imageSize = $image['size'];
+        $imageError = $image['error'];
+        $imageExt = strtolower(pathinfo($imageName, PATHINFO_EXTENSION));
+        $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
 
-	//      if(!empty($_POST['pack_name']) && !empty($_POST['pack_price']) && !empty($_POST['param_en']) && !empty($_POST['keyword']) && !empty($_POST['reply_text_en']) && !empty($_POST['reply_text_ban'])){
+        if (!in_array($imageExt, $allowedExt)) {
+            $imageErr = "Only JPG, PNG, JPEG & GIF allowed.";
+        } elseif ($imageError !== 0) {
+            $imageErr = "Image upload error.";
+        } elseif ($imageSize > 5 * 1024 * 1024) { // 5MB limit
+            $imageErr = "Image size too large.";
+        } else {
+            $newImageName = time() . "_" . basename($imageName);
+            $image = "uploads/" . $newImageName;
+            move_uploaded_file($imageTmpName, $image);
+        }
 
-	//         // Handle Image Upload
-	//         $targetDir = "uploads/"; // Folder to store images
-	//         $fileName = basename($_FILES["image"]["name"]);
-	//         $targetFilePath = $targetDir . time() . "_" . $fileName; // Unique name for image
-	//         $imageFileType = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+	     if(!empty($title) && !empty($subtitle) && !empty($slug) && !empty($short_description) && !empty($description) && !empty($category_id) && !empty($tags) && !empty($image)){
 
-	//         // Allowed file types
-	//         $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
-	//         if (in_array($imageFileType, $allowedTypes)) {
-	//             if (move_uploaded_file($_FILES["image"]["tmp_name"], $targetFilePath)){
-	//                   $conditons = "`pack_name` = '$pack'";
-	//                   $chack_data = $bot->selectData('whatsapp_robi_query_response','id',$conditons,1);
+	       
+          $conditons = "`slug` = '$slug'";
+          $chack_data = $bot->selectData('blogs','id',$conditons,1);
 
-	//                   if ($chack_data > 0) {
-	//                       $_SESSION['success_message'] = "Pack already Exists.";
-	//                   }
-	//                   else{
-	//                       $value = array(
-	//                         "category" => $category,
-	//                         "param_en" => $param,
-	//                         "keywords" => $keyword,
-	//                         "reply_text_en" => $reply_en,
-	//                         "reply_text_ban" => $reply_bn,
-	//                         "pack_name" => $pack,
-	//                         "pack_price" => $price,
-	//                         "image_path" => $targetFilePath // Save image path in database
-	//                       );
+          if ($chack_data > 0) {
+              $_SESSION['success_message'] = "This Blog already Exists.";
+          }
+          else{
+              $value = array(
+                "title" => $title,
+                "subTitle" => $subtitle,
+                "slug" => $slug,
+                "short_description" => $short_description,
+                "description" => $description,
+                "category_id" => $category_id,
+                "featured_image" => $image,
+                "created_at" => date('Y-m-d H:i:s') 
+              );
+              $put_data = $bot->insertData('blogs',$value,true);
+              
+              if ($put_data['status'] === true) {
+                  $insertedId = $put_data['id'];
 
-	//                       $put_data = $bot->insertData('whatsapp_robi_query_response',$value);
-	//                       if($put_data !== false)
-	//                           $_SESSION['success_message'] = "Pack Upload successfully.";
-	//                       else
-	//                           $_SESSION['success_message'] = "Something want wrong.";
-	//                   }
-	//               }
-	//         }
-	//      }
-	// }
+                  foreach ($tags as $tag) {
+                      $tagValue = array(
+                        "blog_id" => $insertedId,
+                        "tag_id" => $tag
+                      );
+                      $pivotSql = $bot->insertData('blog_tag',$tagValue);
+                      
+                  }
+                  $_SESSION['success_message'] = "Blog Upload successfully.";
+              }else{
+                  $_SESSION['success_message'] = "Something want wrong.";
+              }
+                  
+          }
+	              
+	     }
+	}
 
 ?>
 
@@ -105,7 +139,7 @@
           <div class="card-header">
             <div class="row">
               <div class="col-lg-6">
-                <h3 class="card-title">Pack List</h3>
+                <h3 class="card-title">Blog List</h3>
               </div>
               <div class="col-lg-6">
                 <h3 class="card-title" style="float: right;">
@@ -137,26 +171,59 @@
               </tr>
               </thead>
               <tbody>
-                <tr>
-                    <th scope="row">1</th>
-                    <td>Test Title</td>
-                    <td><img src="dist/img/photo1.png" height="50" width="50" alt=""></td>
-                    <td><a href="">Politics</a> <a href="">Business</a></td>
-                    <td>Politics</td>
-                    <td>
-                      <div class="btn-group">
-                        <button type="button" class="btn btn-default">Action</button>
-                        <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
-                          <span class="sr-only">Toggle Dropdown</span>
-                        </button>
-                        <div class="dropdown-menu" role="menu">
-                          <a class="dropdown-item" href="#">Edit</a>
-                          <a class="dropdown-item" href="#">Delete</a>
-                        </div>
-                      </div>
-                    </td>
-                    
-                </tr>
+                <?php
+                  $sr=0;
+                  $conditons = "`id` != '' ORDER BY `id` DESC";
+                  $results = $bot->selectData('blogs','',$conditons,'');
+                  $nm_row = count($results);
+                if($nm_row > 0)
+                {
+                  foreach ($results as $key => $value) {
+                    $id = $value['id'];
+                    $title = $value['title'];
+                    $image = $value['featured_image']
+                  ?>
+                    <tr>
+                        <th scope="row"><?php echo ++$sr; ?></th>
+                        <td><?php echo $title; ?></td>
+                        <td><img src="<?php echo $image; ?>" height="50" width="50" alt=""></td>
+                        <?php 
+                          // Tags
+                          $tagLinks = $bot->selectData('blog_tag', 'tag_id', "`blog_id` = '{$value['id']}'");
+                          $tag_titles = [];
+                          foreach ($tagLinks as $link) {
+                              $tag = $bot->selectData('tags', 'title', "`id` = '{$link['tag_id']}'", 1);
+                              if (!empty($tag)) {
+                                  $tag_titles[] = "<span class='tag-box'>{$tag['title']}</span>";
+                              }
+                          }
+                          echo "<td>" . implode(' ', $tag_titles) . "</td>";
+
+                          // Category title
+                          $category = $bot->selectData('categories', 'title', "`id` = '{$value['category_id']}'", 1);
+                          echo "<td>" . ($category['title'] ?? 'N/A') . "</td>";
+
+                        ?>
+                        <td>
+                          <div class="btn-group">
+                            <button type="button" class="btn btn-default">Action</button>
+                            <button type="button" class="btn btn-default dropdown-toggle dropdown-icon" data-toggle="dropdown">
+                              <span class="sr-only">Toggle Dropdown</span>
+                            </button>
+                            <div class="dropdown-menu" role="menu">
+                              <a class="dropdown-item" href="updateblog.php?id=<?php echo $id; ?>">Edit</a>
+                              <a class="dropdown-item" href="updateblog.php?id=<?php echo $id; ?>">View</a>
+                              <a class="dropdown-item" href="delete.php?id=<?php echo $id; ?>" onclick="return confirm('Are you sure you want to delete this Blog?');">Delete</a>
+                            </div>
+                          </div>
+                        </td>
+                        
+                    </tr>
+                  </tr>
+                    <?php
+                  }
+                }
+              ?>
               
               </tbody>
             </table>
@@ -185,13 +252,20 @@
         <form id="quickForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
           <div class="card-body">
             <div class="form-group">
-              <label>Title</label>
-              <input type="text" name="title" class="form-control" placeholder="Enter Title" required="required">
+              <label>Title *</label>
+              <input type="text" name="title" onkeyup="listingslug(this.value)" id="title" class="form-control" placeholder="Enter Title" required="required">
               <small><?php echo $titleErr; ?></small>
             </div>
+
             <div class="form-group">
-              <label>SubTitle</label>
-              <input type="number" name="SubTitle" class="form-control" placeholder="Enter Sub Title" required="required">
+              <label>Slug *</label>
+              <input type="text" name="slug" id="slug" class="form-control" placeholder="Enter Slug" required="required">
+              <small><?php echo $slugErr; ?></small>
+            </div>
+
+            <div class="form-group">
+              <label>SubTitle *</label>
+              <input type="text" name="subtitle" class="form-control" placeholder="Enter Sub Title" required="required">
               <small><?php echo $subTitleErr; ?></small>                  
             </div>
             <div class="card-body">
@@ -200,14 +274,30 @@
                   <label for="exampleInputFile">Featured Image *</label>
                   <div class="input-group">
                     <div class="custom-file">
-                        <input type="file" accept="image/*" onchange="loadFile(event)" name="featured_image" class="custom-file-input" id="FeaturedImageInputFile" required>
+                        <input type="file" accept="image/*" onchange="loadFile(event)" name="image" class="custom-file-input" id="FeaturedImageInputFile" required>
                         <label class="custom-file-label" for="exampleInputFile">Upload Image</label>
                     </div>
                   </div>
               </div>
                 <small style="color: blue;">Image Size Should Be 800 x 800. or square size</small>
             </div>
-
+            <div class="form-group">
+              <label>Tags *</label>
+              <select class="select2bs4" multiple="multiple" name="tags[]" data-placeholder="Select Tags" style="width: 100%;" required>
+                <?php
+                if($nm_row_tag > 0)
+                {
+                  foreach ($tags as $key => $tag) {
+                ?>
+                    <option value="<?php echo $tag['id'] ?>"><?php echo $tag['title'] ?></option>
+                <?php
+                  }
+                }
+              ?>
+              </select>
+              <small><?php echo $tagsErr; ?></small>
+            </div>
+            <!-- /.form-group -->
 
             <div class="from-group">
               <label for="exampleInputEmail1">Short Description *</label>
@@ -220,13 +310,23 @@
 
             <div class="form-group">
                 <label>Select Category *</label>
-                <select class="form-control select2bs4" name="category_id" id="category" style="width: 100%;" required>
-                    <option value="" selected="selected">Select One</option>
-                    <option value="" selected="selected">First</option>
-                    <option value="" selected="selected">Second</option>
+                <select class="form-control" name="category_id" id="category" style="width: 100%;" required>
+                    <option selected="selected">Select One</option>
+                    <?php
+                    if($nm_row_category > 0)
+                    {
+                      foreach ($categories as $key => $category) {
+                    ?>
+                    <option value="<?php echo $category['id']  ?>" ><?php echo $category['title']  ?></option>
+                    <?php
+                      }
+                    }
+                  ?>
                     
                 </select>
+                <small><?php echo $categoryErr; ?></small>
             </div>
+
           </div>
           <!-- /.card-body -->
           <div class="card-footer">

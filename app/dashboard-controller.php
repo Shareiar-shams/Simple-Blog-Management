@@ -7,8 +7,7 @@
 				$sql = "SELECT $data FROM $tableName WHERE $conditons order by id desc limit $limit";
 				$stmt = $this->db->prepare($sql); 
 				$stmt->execute();
-				$value = $stmt->fetchAll(2); 
-			 	return sizeof($value);
+				return $stmt->fetch(2);
 			}
 			elseif($tableName != '' && $data == '' && $conditons != '' && $limit == ''){
 				$sql = "SELECT * FROM $tableName WHERE $conditons";
@@ -24,33 +23,40 @@
 			}
 		}	
 
-		public function insertData($tableName, $data){
-			if($data != '' && $tableName != ''){
-	            $sql = "INSERT INTO $tableName (";
-	            foreach($data as $key => $v){
-	                $sql .= "$key, ";
-	            }
-	            $sql = rtrim($sql, ", ");
-	            $sql .= ") VALUES (";
+		public function insertData($tableName, $data, $fetch_id = false){
+	    if (!empty($data) && !empty($tableName) && is_array($data)) {
 
-	            foreach($data as $key => $v){
-	                $sql .= ":$key, ";
+	        // Validate column names
+	        foreach ($data as $key => $value) {
+	            if (!preg_match('/^[a-zA-Z0-9_]+$/', $key)) {
+	                throw new Exception("Invalid column name: $key");
 	            }
+	        }
 
-	            $sql = rtrim($sql, ", ");
-	            $sql .= ")";
-	            try{
-	                $stmt = $this->db->prepare($sql);
-	                $stmt->execute($data);
+	        $columns = implode(", ", array_keys($data));
+	        $placeholders = ":" . implode(", :", array_keys($data));
+	        $sql = "INSERT INTO $tableName ($columns) VALUES ($placeholders)";
+
+	        try {
+	            $stmt = $this->db->prepare($sql);
+	            $stmt->execute($data);
+
+	            if ($fetch_id) {
+	                $id = $this->db->lastInsertId();
+	                return ['id' => $id, 'status' => true];
+	            } else {
 	                return true;
-	                
-	            }catch(PDOException $e){
-	                die("Error: " . $e->getMessage());
 	            }
-	        }else{
-	            die("Invalid operations!");
-	        }	
+
+	        } catch (PDOException $e) {
+	            throw new Exception("Database error: " . $e->getMessage());
+	        }
+
+	    } else {
+	        throw new Exception("Invalid input or table name.");
+	    }
 		}
+
 
 		public function updateData($tableName, $data, $conditions=''){
 	        if($tableName != '' && $data != '' && $conditions != ''){

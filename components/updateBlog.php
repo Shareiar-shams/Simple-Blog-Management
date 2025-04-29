@@ -9,7 +9,7 @@
 
   $id = $_GET['id'];
   $conditons = "`id` = '".$id."'";
-  $check_data = $bot->selectData('whatsapp_robi_query_response','',$conditons,'');
+  $check_data = $bot->selectData('blogs','',$conditons,'');
 
   $get_id = $check_data[0]['id'];
   $pack = $check_data[0]['pack_name'];
@@ -76,7 +76,7 @@
             "pack_name" => $update_pack,
             "pack_price" => $update_price,
         );
-        $put_data = $bot->updateData('whatsapp_robi_query_response',$value,$conditons);
+        $put_data = $bot->updateData('blogs',$value,$conditons);
         if($put_data !== false)
         {
             $_SESSION['success_message'] = "Pack Update successfully.";
@@ -98,7 +98,7 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1>Update Product</h1>
+            <h1>Update Blog</h1>
           </div>
           
       </div><!-- /.container-fluid -->
@@ -113,7 +113,7 @@
             <!-- jquery validation -->
             <div class="card card-primary">
               <div class="card-header">
-                <h3 class="card-title">Product Update <small>here</small></h3>
+                <h3 class="card-title">Blog Update <small>here</small></h3>
               </div>
               <!-- /.card-header -->
               <!-- form start -->

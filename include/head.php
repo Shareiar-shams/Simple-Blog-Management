@@ -12,7 +12,6 @@
   <link rel="stylesheet" href="plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
   <!-- Theme style -->
-  <!-- SweetAlert2 -->
   <link rel="stylesheet" href="plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
   
 
@@ -20,11 +19,25 @@
 
   <!-- summernote -->
   <link rel="stylesheet" href="plugins/summernote/summernote-bs4.min.css">
-  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  <!-- Select2 -->
+  <link rel="stylesheet" href="plugins/select2/css/select2.min.css">
+  <link rel="stylesheet" href="plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+
   <style>
       
       span.select2.select2-container.select2-container--classic{
           width: 100% !important;
+      }
+      .tag-box {
+          display: inline-block;
+          background-color: #17a2b8; /* Bootstrap info color */
+          color: #fff;
+          padding: 5px 10px;
+          margin: 2px;
+          border-radius: 15px;
+          font-size: 13px;
+          text-align: center;
+          white-space: nowrap;
       }
   </style>
 </head>
