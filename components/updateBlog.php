@@ -4,94 +4,152 @@
   require_once 'app/dashboard-controller.php'; 
   $bot = new Dashboard_Controller();
 
-  $packErr = $priceErr = $paramErr = $keywordErr = $reply_enErr = $reply_bnErr = "";
-  $update_pack = $update_price = $update_param = $update_keyword = $update_reply_en = $update_reply_bn = "";
-
-  $id = $_GET['id'];
-  $conditons = "`id` = '".$id."'";
-  $check_data = $bot->selectData('blogs','',$conditons,'');
-
-  $get_id = $check_data[0]['id'];
-  $pack = $check_data[0]['pack_name'];
-  $price = $check_data[0]['pack_price'];
-  $param = $check_data[0]['param_en'];
-  $keyword = $check_data[0]['keywords'];
-  $reply_en = $check_data[0]['reply_text_en'];
-  $reply_bn = $check_data[0]['reply_text_ban'];
+  $titleErr = $subTitleErr = $slugErr = $imageErr = $short_descriptionErr = $descriptionErr = $categoryErr = $tagsErr = "";
+  $title = $subtitle = $slug = $image = $short_description = $description = $descriptionErr = $category = $tags = "";
 
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-     if (empty($_POST["update_pack_name"])) {
-       $packErr = "Name is required";
+     if (empty($_POST["title"])) {
+       $titleErr = "Title is required";
      } else {
-       $update_pack = $_POST["update_pack_name"];
+       $title = $_POST["title"];
      }
 
-     if (empty($_POST["update_pack_price"])) {
-       $priceErr = "Price is required";
+     if (empty($_POST["subtitle"])) {
+       $subTitleErr = "SubTitle is required";
      } else {
-       $update_price = $_POST["update_pack_price"];
+       $subtitle = $_POST["subtitle"];
        
      }
 
-     if (empty($_POST["update_param_en"])) {
-       $paramErr = "Param is required";
+     if (empty($_POST["slug"])) {
+       $slugErr = "Slug is required";
      } else {
-       $update_param = $_POST["update_param_en"];
+       $slug = $_POST["slug"];
        
      }
 
-     if (empty($_POST["update_keyword"])) {
-       $keywordErr = "Keyword is required";
+     if (empty($_POST["short_description"])) {
+       $short_descriptionErr = "Short Description is required";
      } else {
-       $update_keyword = $_POST["update_keyword"];
+       $short_description = $_POST["short_description"];
        
      }
 
-     if (empty($_POST["update_reply_text_en"])) {
-       $reply_enErr = "reply text is required";
+     if (empty($_POST["description"])) {
+       $descriptionErr = "Description is required";
      } else {
-       $update_reply_en = $_POST["update_reply_text_en"];
+       $description = $_POST["description"];
        
      }
 
-     if (empty($_POST["update_reply_text_ban"])) {
-       $reply_bnErr = "reply text is required";
+     if (empty($_POST["category_id"])) {
+       $categoryErr = "Category is required";
      } else {
-       $update_reply_bn = $_POST["update_reply_text_ban"];
+       $category = $_POST["category_id"];
        
      }
 
-     $update_category = $_POST["update_category"];
+     if (empty($_POST["tags"])) {
+       $tagsErr = "Tag is required";
+     } else {
+       $tags = $_POST["tags"];
+       
+     }
 
      $id = $_POST["get_id"];
 
-     if(!empty($_POST['update_pack_name']) && !empty($_POST['update_pack_price']) && !empty($_POST['update_param_en']) && !empty($_POST['update_keyword']) && !empty($_POST['update_reply_text_en']) && !empty($_POST['update_reply_text_ban'])){
+      $request_image = $_FILES['image'];
+      if($request_image){
+          $imageName = $request_image['name'];
+          $imageTmpName = $request_image['tmp_name'];
+          $imageSize = $request_image['size'];
+          $imageError = $request_image['error'];
+          $imageExt = strtolower(pathinfo($imageName, PATHINFO_EXTENSION));
+          $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+
+          if (!in_array($imageExt, $allowedExt)) {
+              $imageErr = "Only JPG, PNG, JPEG & GIF allowed.";
+          } elseif ($imageError !== 0) {
+              $imageErr = "Image upload error.";
+          } elseif ($imageSize > 5 * 1024 * 1024) { // 5MB limit
+              $imageErr = "Image size too large.";
+          } else {
+              $newImageName = time() . "_" . basename($imageName);
+              $image = "uploads/" . $newImageName;
+              move_uploaded_file($imageTmpName, $image);
+          }
+      }
+      
+
+
+     if(!empty($title) && !empty($subtitle) && !empty($slug) && !empty($short_description) && !empty($description) && !empty($category) && !empty($tags)){
         $conditons = "`id` = '$id'";
         $value = array(
-            "param_en" => $update_param,
-            "keywords" => $update_keyword,
-            "reply_text_en" => $update_reply_en,
-            "reply_text_ban" => $update_reply_bn,
-            "pack_name" => $update_pack,
-            "pack_price" => $update_price,
+          "title" => $title,
+          "subTitle" => $subtitle,
+          "slug" => $slug,
+          "short_description" => $short_description,
+          "description" => $description,
+          "category_id" => $category,
+          "updated_at" => date('Y-m-d H:i:s') 
         );
+
+        if (!empty($image))
+          $value["featured_image"] = $image;
+
         $put_data = $bot->updateData('blogs',$value,$conditons);
+
+
         if($put_data !== false)
         {
-            $_SESSION['success_message'] = "Pack Update successfully.";
+            $condition = "`blog_id` = $id";
+            $sessionData = $bot->delete('blog_tag',$condition);
+
+            foreach ($tags as $tag) {
+                $tagValue = array(
+                  "blog_id" => $id,
+                  "tag_id" => $tag
+                );
+                $pivotSql = $bot->insertData('blog_tag',$tagValue);
+                
+            }
+            $_SESSION['success_message'] = "Blog Update successfully.";
             header("Location: index.php");
         }
         else{
-            $_SESSION['success_message'] = "Some problem found.";
+            $_SESSION['error_message'] = "Some problem found.";
             header("Location: index.php");
         }
         exit();
      }
   }
 
-?>
+  $slug = $_GET['slug'];
+  $conditons = "`slug` = '".$slug."'";
+  $check_data = $bot->selectData('blogs','',$conditons,'');
 
+  $get_id = $check_data[0]['id'];
+  $title = $check_data[0]['title'];
+  $subtitle = $check_data[0]['subTitle'];
+  $slug = $check_data[0]['slug'];
+  $image = $check_data[0]['featured_image'];
+  $short_description = $check_data[0]['short_description'];
+  $description = $check_data[0]['description'];
+  $category_id = $check_data[0]['category_id'];
+
+  $conditions = "`title` != '' ORDER BY `id` DESC";
+  $categories = $bot->selectData('categories','',$conditions,'');
+  $nm_row_category = count($categories);
+
+  $conditions = "`title` != '' ORDER BY `id` ASC";
+  $tags = $bot->selectData('tags','',$conditions,'');
+  $nm_row_tag = count($tags);
+
+
+  $tagLinks = $bot->selectData('blog_tag', 'tag_id', "`blog_id` = '{$get_id}'");
+
+?>
 
 	<!-- Content Header (Page header) -->
     <section class="content-header">
@@ -119,39 +177,87 @@
               <!-- form start -->
               <form id="quickForm" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post" enctype="multipart/form-data">
                 <div class="card-body">
-                <div class="form-group">
-                  <label>Pack Name/CBS</label>
-                  <input type="text" name="update_pack_name" class="form-control" value="<?php echo $pack; ?>">
-                  <small><?php echo $packErr; ?></small>
+                  <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" name="title" onkeyup="listingslug(this.value)" id="title" class="form-control" placeholder="Enter Title" value="<?php echo $title ?>" required="required">
+                    <small><?php echo $titleErr; ?></small>
+                  </div>
+                  <input type="hidden" name="get_id" value="<?php echo $get_id ?>">
+                  <div class="form-group">
+                    <label>Slug *</label>
+                    <input type="text" name="slug" id="slug" class="form-control" placeholder="Enter Slug" value="<?php echo $slug ?>" required="required">
+                    <small><?php echo $slugErr; ?></small>
+                  </div>
+
+                  <div class="form-group">
+                    <label>SubTitle *</label>
+                    <input type="text" name="subtitle" class="form-control" value="<?php echo $subtitle ?>" placeholder="Enter Sub Title" required="required">
+                    <small><?php echo $subTitleErr; ?></small>                  
+                  </div>
+                  <div class="card-body">
+                    <img src="<?php echo $image; ?>"  class="profile-user-img img-responsive" alt="Selected Featured Image" id="output">
+                    <div class="form-group">
+                        <label for="exampleInputFile">Featured Image *</label>
+                        <div class="input-group">
+                          <div class="custom-file">
+                              <input type="file" accept="image/*" onchange="loadFile(event)" name="image" class="custom-file-input" id="FeaturedImageInputFile">
+                              <label class="custom-file-label" for="exampleInputFile">Upload Image</label>
+                          </div>
+                        </div>
+                    </div>
+                      <small style="color: blue;">Image Size Should Be 800 x 800. or square size</small>
+                  </div>
+                  <div class="form-group">
+                    <label>Tags *</label>
+                    <select class="select2bs4" multiple="multiple" name="tags[]" data-placeholder="Select Tags" style="width: 100%;" required>
+                      <?php
+                      if($nm_row_tag > 0)
+                      {
+                        $selectedTagIds = array_column($tagLinks, 'tag_id');
+                        foreach ($tags as $tag) {
+                          $selected = in_array($tag['id'], $selectedTagIds) ? 'selected' : '';
+                          ?>
+                            <option value="<?php echo $tag['id']; ?>" <?php echo $selected; ?>>
+                                <?php echo $tag['title']; ?>
+                            </option>
+                          <?php
+                        }
+                      }
+                    ?>
+                    </select>
+                    <small><?php echo $tagsErr; ?></small>
+                  </div>
+                  <!-- /.form-group -->
+
+                  <div class="from-group">
+                    <label for="exampleInputEmail1">Short Description *</label>
+                      <textarea class="form-control" name="short_description" placeholder="Short Description"><?php echo $short_description ?></textarea>
+                  </div>
+                  <div class="from-group mt-3">
+                    <label for="exampleInputEmail1">Description *</label>
+                      <textarea id="summernote" name="description" placeholder="Description" required><?php echo $description ?></textarea>
+                  </div>
+
+                  <div class="form-group">
+                      <label>Select Category *</label>
+                      <select class="form-control" name="category_id" id="category" style="width: 100%;" required>
+                          <option >Select One</option>
+                          <?php
+                          if($nm_row_category > 0)
+                          {
+                            foreach ($categories as $key => $category) {
+                          ?>
+                          <option value="<?php echo $category['id'] ?>" selected="<?php $category['id'] === $category_id ? 'selected' : '' ?>"><?php echo $category['title']  ?></option>
+                          <?php
+                            }
+                          }
+                        ?>
+                          
+                      </select>
+                      <small><?php echo $categoryErr; ?></small>
+                  </div>
+
                 </div>
-                <div class="form-group">
-                  <label>Pack Price</label>
-                  <input type="number" name="update_pack_price" class="form-control" value="<?php echo $price; ?>">
-                  <small><?php echo $priceErr; ?></small>                  
-                </div>
-                <div class="form-group">
-                  <label>English Param</label>
-                  <input type="text" name="update_param_en" class="form-control" value="<?php echo $param; ?>">
-                  <small><?php echo $paramErr; ?></small>                  
-                </div>
-                <input type="hidden" name="update_category" value="pack">
-                <input type="hidden" name="get_id" value="<?php echo $get_id ?>">
-                <div class="form-group">
-                  <label>Keyword</label>
-                  <textarea name="update_keyword" class="form-control" ><?php echo $keyword; ?></textarea>
-                  <small><?php echo $keywordErr; ?></small>                  
-                </div>
-                <div class="form-group">
-                  <label>Reply Text(EN)</label>
-                  <textarea name="update_reply_text_en" class="form-control"><?php echo $reply_en; ?></textarea>
-                  <small><?php echo $reply_enErr; ?></small> 
-                </div>
-                <div class="form-group">
-                  <label>Reply Text(BN)</label>
-                  <textarea name="update_reply_text_ban" class="form-control"><?php echo $reply_bn; ?></textarea>
-                  <small><?php echo $reply_bnErr; ?></small> 
-                </div>
-              </div>
                 <!-- /.card-body -->
                 <div class="card-footer">
                   <button type="submit" class="btn btn-primary">Submit</button>
@@ -171,3 +277,10 @@
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->
+
+<script type="text/javascript">
+  var loadFile = function(event) {
+    var image = document.getElementById('output');
+    image.src = URL.createObjectURL(event.target.files[0]);
+  };
+</script>

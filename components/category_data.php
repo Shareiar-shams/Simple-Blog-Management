@@ -68,7 +68,7 @@
           }
 
           if (isset($_SESSION['error_message']) && !empty($_SESSION['error_message'])) { ?>
-              <div class="danger-message" style="margin-bottom: 20px;font-size: 20px;color: green;"><?php echo $_SESSION['error_message']; ?></div>
+              <div class="danger-message" style="margin-bottom: 20px;font-size: 20px;color: red;"><?php echo $_SESSION['error_message']; ?></div>
               <?php
               unset($_SESSION['error_message']);
           }

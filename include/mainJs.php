@@ -49,28 +49,6 @@
   });
 </script>
 <script>
-    $('#output').hide();
-
-    var loadFile = function(event) {
-      $('#output').show();
-      var image = document.getElementById('output');
-      image.src = URL.createObjectURL(event.target.files[0]);
-    };
-
-    $(function () {
-
-      //Initialize Select2 Elements
-      $('.select2').select2()
-
-      //Initialize Select2 Elements
-      $('.select2bs4').select2({
-        theme: 'bootstrap4'
-      })
-      
-      // Summernote
-      $('#summernote').summernote()
-    
-    });
 
     function slugify(text) {
         return text

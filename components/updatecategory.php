@@ -35,7 +35,7 @@
             header("Location:category.php");
         }
         else{
-            $_SESSION['success_message'] = "Some problem found.";
+            $_SESSION['error_message'] = "Some problem found.";
             header("Location:category.php");
         }
         exit();

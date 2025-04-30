@@ -8,8 +8,6 @@
 
   $id = $_GET['id'];
 
-  
-
   $condition = "`id` = $id";
   $sessionData = $bot->delete('blogs',$condition);
   if($sessionData !== false)

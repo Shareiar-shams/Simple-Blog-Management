@@ -30,5 +30,12 @@
 <!-- jQuery -->
 <?php include 'include/mainJs.php' ?>
 
+<!-- Page specific JS -->
+<?php
+  if (function_exists('extra_js')) {
+    extra_js(); // this will call a function from current page
+  }
+?>
+
 </body>
 </html>

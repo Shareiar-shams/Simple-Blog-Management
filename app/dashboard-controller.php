@@ -58,7 +58,7 @@
 		}
 
 
-		public function updateData($tableName, $data, $conditions=''){
+		public function updateData($tableName, $data, $conditions='', $fetch_id = false){
 	        if($tableName != '' && $data != '' && $conditions != ''){
 	            $sql = "UPDATE $tableName SET ";
 	            foreach($data as $key => $v){

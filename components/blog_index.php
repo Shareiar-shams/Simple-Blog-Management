@@ -53,7 +53,7 @@
 	     if (empty($_POST["category_id"])) {
 	       $categoryErr = "Category is required";
 	     } else {
-	       $category_id = $_POST["category_id"];
+	       $category = $_POST["category_id"];
 	       
 	     }
 
@@ -84,7 +84,7 @@
             move_uploaded_file($imageTmpName, $image);
         }
 
-	     if(!empty($title) && !empty($subtitle) && !empty($slug) && !empty($short_description) && !empty($description) && !empty($category_id) && !empty($tags) && !empty($image)){
+	     if(!empty($title) && !empty($subtitle) && !empty($slug) && !empty($short_description) && !empty($description) && !empty($category) && !empty($tags) && !empty($image)){
 
 	       
           $conditons = "`slug` = '$slug'";
@@ -100,7 +100,7 @@
                 "slug" => $slug,
                 "short_description" => $short_description,
                 "description" => $description,
-                "category_id" => $category_id,
+                "category_id" => $category,
                 "featured_image" => $image,
                 "created_at" => date('Y-m-d H:i:s') 
               );
@@ -119,7 +119,7 @@
                   }
                   $_SESSION['success_message'] = "Blog Upload successfully.";
               }else{
-                  $_SESSION['success_message'] = "Something want wrong.";
+                  $_SESSION['error_message'] = "Something want wrong.";
               }
                   
           }
@@ -157,6 +157,12 @@
               <?php
               unset($_SESSION['success_message']);
           }
+
+          if (isset($_SESSION['error_message']) && !empty($_SESSION['error_message'])) { ?>
+              <div class="error-message" style="margin-bottom: 20px;font-size: 20px;color: red;"><?php echo $_SESSION['error_message']; ?></div>
+              <?php
+              unset($_SESSION['error_message']);
+          }
           ?>
           <div class="card-body">
             <table id="example1" class="table table-bordered table-striped">
@@ -181,7 +187,8 @@
                   foreach ($results as $key => $value) {
                     $id = $value['id'];
                     $title = $value['title'];
-                    $image = $value['featured_image']
+                    $slug = $value['slug'];
+                    $image = $value['featured_image'];
                   ?>
                     <tr>
                         <th scope="row"><?php echo ++$sr; ?></th>
@@ -211,8 +218,8 @@
                               <span class="sr-only">Toggle Dropdown</span>
                             </button>
                             <div class="dropdown-menu" role="menu">
-                              <a class="dropdown-item" href="updateblog.php?id=<?php echo $id; ?>">Edit</a>
-                              <a class="dropdown-item" href="updateblog.php?id=<?php echo $id; ?>">View</a>
+                              <a class="dropdown-item" href="updateblog.php?slug=<?php echo $slug; ?>">Edit</a>
+                              <a class="dropdown-item" href="updateblog.php?slug=<?php echo $slug; ?>">View</a>
                               <a class="dropdown-item" href="delete.php?id=<?php echo $id; ?>" onclick="return confirm('Are you sure you want to delete this Blog?');">Delete</a>
                             </div>
                           </div>
@@ -340,3 +347,4 @@
   <!-- /.modal-dialog -->
 </div>
 <!-- /.modal -->
+
