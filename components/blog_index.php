@@ -196,7 +196,7 @@
                         <td><img src="<?php echo $image; ?>" height="50" width="50" alt=""></td>
                         <?php 
                           // Tags
-                          $tagLinks = $bot->selectData('blog_tag', 'tag_id', "`blog_id` = '{$value['id']}'");
+                          $tagLinks = $bot->selectData('blog_tag', 'tag_id', "`blog_id` = '{$value['id']}'",'');
                           $tag_titles = [];
                           foreach ($tagLinks as $link) {
                               $tag = $bot->selectData('tags', 'title', "`id` = '{$link['tag_id']}'", 1);

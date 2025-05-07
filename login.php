@@ -16,7 +16,7 @@
           $pass = $_POST['pass'];
 
           if (empty($email) || empty($pass)) {
-              $message = 'All fields are required';
+              $message_login = 'All fields are required';
           } else {
 
               $sql = "SELECT username, email, password FROM users WHERE email = ?";
@@ -70,7 +70,7 @@
 
           if( empty($usernameErr) && empty($emailErr) && empty($passwordErr) && empty($retypepasswordErr)){
               $store_data = "INSERT INTO users (`id`,`username`,`email`,`password`)VALUES (NULL, :username , :email , :password)";
-              $query = $db->db->prepare($store_data); 
+              $query = $db->db->prepare($store_data);
               $store_result = $query->execute([
                  ':username' => $username,
                  ':email' => $email,
@@ -80,6 +80,7 @@
 
               if($store_result) {
                 $_SESSION['email'] = $email;
+                $_SESSION['name'] = $username;
                 header('location:index.php');
               } else {
                 $message_signup = "Validation Error, User not register.";

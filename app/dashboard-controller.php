@@ -1,5 +1,4 @@
 <?php
-  require_once 'db.php';
 	class Dashboard_Controller extends Database{
 
 		public function selectData($tableName, $data='', $conditons = '',$limit=''){
@@ -7,7 +6,10 @@
 				$sql = "SELECT $data FROM $tableName WHERE $conditons order by id desc limit $limit";
 				$stmt = $this->db->prepare($sql); 
 				$stmt->execute();
-				return $stmt->fetch(2);
+				if($limit == 1)
+					return $stmt->fetch(2);
+				else
+					return $stmt->fetchAll(2);
 			}
 			elseif($tableName != '' && $data == '' && $conditons != '' && $limit == ''){
 				$sql = "SELECT * FROM $tableName WHERE $conditons";
@@ -77,22 +79,22 @@
 	        }else{
 	            die("Invalid operations!");
 	        }
-	    }
+	  }
 
-	    public function delete($tableName, $conditions){
-	        if($tableName != '' && $conditions != ''){
-	            try{
-	            	$sql = "DELETE FROM $tableName WHERE $conditions";
-	                $stmt = $this->db->prepare($sql);
-	                $stmt->execute();
-	                return true;
-	            }catch(PDOException $e){
-	                die("Error: " . $e->getMessage());
-	            }
-	        }else{
-	            die("Invalid operations!");
-	        }
-	    }
+    public function delete($tableName, $conditions){
+        if($tableName != '' && $conditions != ''){
+            try{
+            	$sql = "DELETE FROM $tableName WHERE $conditions";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute();
+                return true;
+            }catch(PDOException $e){
+                die("Error: " . $e->getMessage());
+            }
+        }else{
+            die("Invalid operations!");
+        }
+    }
 	}
 
 ?>
