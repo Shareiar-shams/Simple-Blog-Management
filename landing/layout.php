@@ -1,3 +1,13 @@
+<?php
+	function limit_words($text, $limit = 300) {
+	    $words = explode(' ', $text);
+	    if (count($words) <= $limit) {
+	        return $text;
+	    }
+	    return implode(' ', array_slice($words, 0, $limit)) . '...';
+	}
+?>
+
 <!DOCTYPE html>
 <html>
 <?php include 'include/head.php' ?>
@@ -12,8 +22,7 @@
 	</div>
 	<!-- Main News Slider End -->
 	
-	<?php include 'include/featured.php' ?>
-	<?php include 'include/sidebar.php' ?>
+	
 	<?php include 'include/footer.php' ?>
 	<?php include 'include/mainjs.php' ?>
 </body>
