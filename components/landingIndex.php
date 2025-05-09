@@ -8,8 +8,8 @@
 	$limit_blogs = $bot->selectData('blogs','*',$conditions,3);
 	$nm_row_limit_blogs = count($limit_blogs);
 
-	$conditions = "`title` != '' ORDER BY `id` ASC";
-	$blogs = $bot->selectData('blogs','',$conditions,'');
+	$conditions = "`title` != ''";
+	$blogs = $bot->selectData('blogs','*',$conditions,4);
 	$nm_row_blog = count($blogs);
 ?>
 
@@ -36,7 +36,7 @@
 
 	                $conditions = "`id` = ".$value['category_id'];
 					$category = $bot->selectData('categories','title',$conditions,1);
-					$short_description = limit_words($value['short_description'],30)
+					$short_description = limit_words($value['short_description'],30);
             	?>
                     <div class="position-relative overflow-hidden" style="height: 500px;">
                         <img class="img-fluid h-100" src="../<?php echo $image ?>" style="object-fit: cover;">
@@ -44,9 +44,9 @@
                             <div class="mb-2">
                                 <a class="badge badge-primary text-uppercase font-weight-semi-bold p-2 mr-2"
                                     href=""><?php echo $category['title']; ?></a>
-                                <a class="text-white" href=""><?php echo $date ?></a>
+                                <a class="text-white" href=""><?php echo $date; ?></a>
                             </div>
-                            <a class="h2 m-0 text-white text-uppercase font-weight-bold" href=""><?php echo $short_description ?></a>
+                            <a class="h2 m-0 text-white text-uppercase font-weight-bold" href="details.php?id=<?php echo $id ?>"><?php echo $title; ?></a>
                         </div>
                     </div>
                 <?php
@@ -88,7 +88,7 @@
 		                                href=""><?php echo $category['title']; ?></a>
 		                            <a class="text-white" href=""><small><?php echo $date; ?></small></a>
 		                        </div>
-		                        <a class="h6 m-0 text-white text-uppercase font-weight-semi-bold" href=""><?php echo $short_description; ?></a>
+		                        <a class="h6 m-0 text-white text-uppercase font-weight-semi-bold" href="details.php?id=<?php echo $id ?>"><?php echo $title; ?></a>
 		                    </div>
 		                </div>
 		            </div>
