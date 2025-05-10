@@ -3,7 +3,7 @@
 	function main_section(){
 		?>
 		<!-- News With Sidebar Start -->
-	    <div class="container-fluid">
+	    <div class="mt-5 container-fluid">
 	        <div class="container">
 	            <div class="row">
 	            	<div class="col-lg-8">
